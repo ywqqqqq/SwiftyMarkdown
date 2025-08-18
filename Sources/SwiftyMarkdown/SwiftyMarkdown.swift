@@ -506,7 +506,17 @@ extension SwiftyMarkdown {
 			attributes[.paragraphStyle] = paragraphStyle
 		case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder, .orderedList, .orderedListIndentFirstOrder, .orderedListIndentSecondOrder:
 			
-			let interval : CGFloat = 30
+            /**
+             * 缩进单位长度 30 -> 根据字号计算
+             * 此处有个坑，每单位制表符缩进必须大于字号，否者会失效（listItem字号向上取整后+1）
+             */
+            var fontWidth: CGFloat?
+            if let fontName = body.fontName,
+               let font = UIFont(name: fontName, size: body.fontSize) {
+                fontWidth = CGFloat(ceil(listItem.size(withAttributes: [.font: font]).width)) + 1
+            }
+            
+            let interval : CGFloat = fontWidth ?? 30
 			var addition = interval
 			var indent = ""
 			switch line.lineStyle as! MarkdownLineStyle {
