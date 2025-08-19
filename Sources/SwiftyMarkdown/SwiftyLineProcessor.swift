@@ -22,14 +22,21 @@ public protocol LineStyling {
 public struct SwiftyLine : CustomStringConvertible {
     public let line : String
     public let lineStyle : LineStyling
+    public let originalNumber: Int?  // 新增：保存原始序号
     public var description: String {
         return self.line
+    }
+    // 添加新的初始化方法
+    public init(line: String, lineStyle: LineStyling, originalNumber: Int? = nil) {
+        self.line = line
+        self.lineStyle = lineStyle
+        self.originalNumber = originalNumber
     }
 }
 
 extension SwiftyLine : Equatable {
     public static func == ( _ lhs : SwiftyLine, _ rhs : SwiftyLine ) -> Bool {
-        return lhs.line == rhs.line
+        return lhs.line == rhs.line && lhs.originalNumber == rhs.originalNumber
     }
 }
 
@@ -66,6 +73,24 @@ public struct LineRule {
         self.removeFrom = removeFrom
         self.shouldTrim = shouldTrim
         self.changeAppliesTo = changeAppliesTo
+    }
+}
+
+extension SwiftyLineProcessor {
+    
+    private func extractOriginalNumber(from text: String, for element: LineRule) -> Int? {
+        guard text.contains(element.token),
+              element.token.contains(". ") else {
+            return nil
+        }
+        
+        // 提取数字：从token中获取数字部分
+        let numberPart = element.token.replacingOccurrences(of: ". ", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\t", with: "")
+            .replacingOccurrences(of: " ", with: "")
+        
+        return Int(numberPart)
     }
 }
 
@@ -159,6 +184,8 @@ public class SwiftyLineProcessor {
                 continue
             }
             
+            let originalNumber = extractOriginalNumber(from: text, for: element)
+            
             switch element.removeFrom {
             case .leading:
                 output = findLeadingLineElement(element, in: output)
@@ -177,15 +204,14 @@ public class SwiftyLineProcessor {
             guard unprocessed != output else {
                 continue
             }
+            
             if element.changeAppliesTo == .untilClose {
                 self.closeToken = (self.closeToken == nil) ? element.token : nil
                 return nil
             }
-
-            
             
             output = (element.shouldTrim) ? output.trimmingCharacters(in: .whitespaces) : output
-            return SwiftyLine(line: output, lineStyle: element.type)
+            return SwiftyLine(line: output, lineStyle: element.type, originalNumber: originalNumber)
             
         }
         

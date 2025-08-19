@@ -151,38 +151,61 @@ If that is not set, then the system default will be used.
 /// A class that takes a [Markdown](https://daringfireball.net/projects/markdown/) string or file and returns an NSAttributedString with the applied styles. Supports Dynamic Type.
 @objc open class SwiftyMarkdown: NSObject {
 	
+    private static func generateOrderedListRules() -> [LineRule] {
+        var rules: [LineRule] = []
+        
+        // 倒序生成，确保大数字先匹配
+        for i in (1...20).reversed() {
+            rules.append(LineRule(token: "      \(i). ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+            rules.append(LineRule(token: "   \(i). ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+            rules.append(LineRule(token: "\t\t\(i). ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+            rules.append(LineRule(token: "\t\(i). ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+            rules.append(LineRule(token: "\(i). ", type: MarkdownLineStyle.orderedList, removeFrom: .leading))
+        }
+        
+        return rules
+    }
+    
 	static public var frontMatterRules = [
 		FrontMatterRule(openTag: "---", closeTag: "---", keyValueSeparator: ":")
 	]
 	
-    static public var lineRules = [
-        LineRule(token: "=", type: MarkdownLineStyle.previousH1, removeFrom: .entireLine, changeAppliesTo: .previous),
-        LineRule(token: "-", type: MarkdownLineStyle.previousH2, removeFrom: .entireLine, changeAppliesTo: .previous),
-        LineRule(token: "      - ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "   - ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t\t- ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t- ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "- ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
-        LineRule(token: "      * ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "   * ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t\t* ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t* ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "      1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "   1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t\t1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "1. ",type : MarkdownLineStyle.orderedList, removeFrom: .leading),
-        LineRule(token: "* ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
-        LineRule(token: "    ", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: "\t", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
-        LineRule(token: ">",type : MarkdownLineStyle.blockquote, removeFrom: .leading),
-        LineRule(token: "###### ",type : MarkdownLineStyle.h6, removeFrom: .both),
-        LineRule(token: "##### ",type : MarkdownLineStyle.h5, removeFrom: .both),
-        LineRule(token: "#### ",type : MarkdownLineStyle.h4, removeFrom: .both),
-        LineRule(token: "### ",type : MarkdownLineStyle.h3, removeFrom: .both),
-        LineRule(token: "## ",type : MarkdownLineStyle.h2, removeFrom: .both),
-        LineRule(token: "# ",type : MarkdownLineStyle.h1, removeFrom: .both)
-    ]
+    static public var lineRules: [LineRule] = {
+        var rules: [LineRule] = []
+        
+        // 基础规则
+        rules.append(LineRule(token: "=", type: MarkdownLineStyle.previousH1, removeFrom: .entireLine, changeAppliesTo: .previous))
+        rules.append(LineRule(token: "-", type: MarkdownLineStyle.previousH2, removeFrom: .entireLine, changeAppliesTo: .previous))
+        
+        // 添加生成的有序列表规则
+        rules.append(contentsOf: generateOrderedListRules())
+        
+        // 无序列表规则
+        rules.append(LineRule(token: "      - ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "   - ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "\t\t- ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "\t- ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "- ", type: MarkdownLineStyle.unorderedList, removeFrom: .leading))
+        
+        rules.append(LineRule(token: "      * ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "   * ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "\t\t* ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "\t* ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "* ", type: MarkdownLineStyle.unorderedList, removeFrom: .leading))
+        
+        // 其他规则
+        rules.append(LineRule(token: "    ", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: "\t", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false))
+        rules.append(LineRule(token: ">", type: MarkdownLineStyle.blockquote, removeFrom: .leading))
+        rules.append(LineRule(token: "###### ", type: MarkdownLineStyle.h6, removeFrom: .both))
+        rules.append(LineRule(token: "##### ", type: MarkdownLineStyle.h5, removeFrom: .both))
+        rules.append(LineRule(token: "#### ", type: MarkdownLineStyle.h4, removeFrom: .both))
+        rules.append(LineRule(token: "### ", type: MarkdownLineStyle.h3, removeFrom: .both))
+        rules.append(LineRule(token: "## ", type: MarkdownLineStyle.h2, removeFrom: .both))
+        rules.append(LineRule(token: "# ", type: MarkdownLineStyle.h1, removeFrom: .both))
+        
+        return rules
+    }()
 	
 	static public var characterRules = [
 		CharacterRule(primaryTag: CharacterRuleTag(tag: "![", type: .open), otherTags: [
@@ -462,28 +485,40 @@ extension SwiftyMarkdown {
 		var listItem = self.bullet
 		switch markdownLineStyle {
 		case .orderedList:
-			self.orderedListCount += 1
-			self.orderedListIndentFirstOrderCount = 0
-			self.orderedListIndentSecondOrderCount = 0
-			listItem = "\(self.orderedListCount)."
-		case .orderedListIndentFirstOrder, .unorderedListIndentFirstOrder:
-			self.orderedListIndentFirstOrderCount += 1
-			self.orderedListIndentSecondOrderCount = 0
-			if markdownLineStyle == .orderedListIndentFirstOrder {
-				listItem = "\(self.orderedListIndentFirstOrderCount)."
-			}
-			
-		case .orderedListIndentSecondOrder, .unorderedListIndentSecondOrder:
-			self.orderedListIndentSecondOrderCount += 1
-			if markdownLineStyle == .orderedListIndentSecondOrder {
-				listItem = "\(self.orderedListIndentSecondOrderCount)."
-			}
-			
-		default:
-			self.orderedListCount = 0
-			self.orderedListIndentFirstOrderCount = 0
-			self.orderedListIndentSecondOrderCount = 0
-		}
+            // 使用原始数字而不是计数器
+            if let originalNumber = line.originalNumber {
+                listItem = "\(originalNumber)."
+            } else {
+                self.orderedListCount += 1
+                listItem = "\(self.orderedListCount)."
+            }
+            self.orderedListIndentFirstOrderCount = 0
+            self.orderedListIndentSecondOrderCount = 0
+        case .orderedListIndentFirstOrder:
+            if let originalNumber = line.originalNumber {
+                listItem = "\(originalNumber)."
+            } else {
+                self.orderedListIndentFirstOrderCount += 1
+                listItem = "\(self.orderedListIndentFirstOrderCount)."
+            }
+            self.orderedListIndentSecondOrderCount = 0
+        case .orderedListIndentSecondOrder:
+            if let originalNumber = line.originalNumber {
+                listItem = "\(originalNumber)."
+            } else {
+                self.orderedListIndentSecondOrderCount += 1
+                listItem = "\(self.orderedListIndentSecondOrderCount)."
+            }
+        case .unorderedListIndentFirstOrder:
+            self.orderedListIndentFirstOrderCount += 1
+            self.orderedListIndentSecondOrderCount = 0
+        case .unorderedListIndentSecondOrder:
+            self.orderedListIndentSecondOrderCount += 1
+        default:
+            self.orderedListCount = 0
+            self.orderedListIndentFirstOrderCount = 0
+            self.orderedListIndentSecondOrderCount = 0
+        }
 
 		let lineProperties : LineProperties
 		switch markdownLineStyle {
@@ -519,7 +554,7 @@ extension SwiftyMarkdown {
             var fontWidth: CGFloat?
             if let fontName = body.fontName,
                let font = UIFont(name: fontName, size: body.fontSize) {
-                fontWidth = CGFloat(ceil(bullet.size(withAttributes: [.font: font]).width)) + 1
+                fontWidth = CGFloat(ceil(listItem.size(withAttributes: [.font: font]).width)) + 1
             }
             
             let interval : CGFloat = fontWidth ?? 30
