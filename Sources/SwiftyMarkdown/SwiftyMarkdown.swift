@@ -554,7 +554,7 @@ extension SwiftyMarkdown {
             var fontWidth: CGFloat?
             if let fontName = body.fontName,
                let font = UIFont(name: fontName, size: body.fontSize) {
-                fontWidth = CGFloat(ceil(listItem.size(withAttributes: [.font: font]).width)) + 1
+                fontWidth = CGFloat(ceil(bullet.size(withAttributes: [.font: font]).width)) + 1
             }
             
             let interval : CGFloat = fontWidth ?? 30

@@ -173,14 +173,14 @@ public class SwiftyLineProcessor {
             guard element.token.count > 0 else {
                 continue
             }
-            var output : String = (element.shouldTrim) ? preprocessedText.trimmingCharacters(in: .whitespaces) : preprocessedText
+            var output : String = (element.shouldTrim) ? text.trimmingCharacters(in: .whitespaces) : text
             let unprocessed = output
             
             if let hasToken = self.closeToken, unprocessed != hasToken {
                 return nil
             }
             
-            if !preprocessedText.contains(element.token) {
+            if !text.contains(element.token) {
                 continue
             }
             
