@@ -155,28 +155,34 @@ If that is not set, then the system default will be used.
 		FrontMatterRule(openTag: "---", closeTag: "---", keyValueSeparator: ":")
 	]
 	
-	static public var lineRules = [
-		LineRule(token: "=", type: MarkdownLineStyle.previousH1, removeFrom: .entireLine, changeAppliesTo: .previous),
-		LineRule(token: "-", type: MarkdownLineStyle.previousH2, removeFrom: .entireLine, changeAppliesTo: .previous),
-		LineRule(token: "\t\t- ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t- ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "- ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
-		LineRule(token: "\t\t* ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t* ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t\t1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "1. ",type : MarkdownLineStyle.orderedList, removeFrom: .leading),
-		LineRule(token: "* ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
-		LineRule(token: "    ", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: "\t", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
-		LineRule(token: ">",type : MarkdownLineStyle.blockquote, removeFrom: .leading),
-		LineRule(token: "###### ",type : MarkdownLineStyle.h6, removeFrom: .both),
-		LineRule(token: "##### ",type : MarkdownLineStyle.h5, removeFrom: .both),
-		LineRule(token: "#### ",type : MarkdownLineStyle.h4, removeFrom: .both),
-		LineRule(token: "### ",type : MarkdownLineStyle.h3, removeFrom: .both),
-		LineRule(token: "## ",type : MarkdownLineStyle.h2, removeFrom: .both),
-		LineRule(token: "# ",type : MarkdownLineStyle.h1, removeFrom: .both)
-	]
+    static public var lineRules = [
+        LineRule(token: "=", type: MarkdownLineStyle.previousH1, removeFrom: .entireLine, changeAppliesTo: .previous),
+        LineRule(token: "-", type: MarkdownLineStyle.previousH2, removeFrom: .entireLine, changeAppliesTo: .previous),
+        LineRule(token: "      - ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "   - ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t\t- ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t- ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "- ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
+        LineRule(token: "      * ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "   * ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t\t* ", type: MarkdownLineStyle.unorderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t* ", type: MarkdownLineStyle.unorderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "      1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "   1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t\t1. ", type: MarkdownLineStyle.orderedListIndentSecondOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t1. ", type: MarkdownLineStyle.orderedListIndentFirstOrder, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "1. ",type : MarkdownLineStyle.orderedList, removeFrom: .leading),
+        LineRule(token: "* ",type : MarkdownLineStyle.unorderedList, removeFrom: .leading),
+        LineRule(token: "    ", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: "\t", type: MarkdownLineStyle.codeblock, removeFrom: .leading, shouldTrim: false),
+        LineRule(token: ">",type : MarkdownLineStyle.blockquote, removeFrom: .leading),
+        LineRule(token: "###### ",type : MarkdownLineStyle.h6, removeFrom: .both),
+        LineRule(token: "##### ",type : MarkdownLineStyle.h5, removeFrom: .both),
+        LineRule(token: "#### ",type : MarkdownLineStyle.h4, removeFrom: .both),
+        LineRule(token: "### ",type : MarkdownLineStyle.h3, removeFrom: .both),
+        LineRule(token: "## ",type : MarkdownLineStyle.h2, removeFrom: .both),
+        LineRule(token: "# ",type : MarkdownLineStyle.h1, removeFrom: .both)
+    ]
 	
 	static public var characterRules = [
 		CharacterRule(primaryTag: CharacterRuleTag(tag: "![", type: .open), otherTags: [
@@ -513,7 +519,7 @@ extension SwiftyMarkdown {
             var fontWidth: CGFloat?
             if let fontName = body.fontName,
                let font = UIFont(name: fontName, size: body.fontSize) {
-                fontWidth = CGFloat(ceil(listItem.size(withAttributes: [.font: font]).width)) + 1
+                fontWidth = CGFloat(ceil(bullet.size(withAttributes: [.font: font]).width)) + 1
             }
             
             let interval : CGFloat = fontWidth ?? 30
